@@ -30,7 +30,7 @@ services:
     container_name: anonymizer
     build: anonymizer
     ports:
-      - 8081:8081
+      - 8082:8082
     depends_on:
       - kafka
 
@@ -41,3 +41,21 @@ services:
       - 8080:8080
     depends_on:
       - kafka
+
+  jobmanager:
+    image: flink:latest
+    command: jobmanager  # Запуск JobManager
+    environment:
+      - JOB_MANAGER_RPC_ADDRESS=jobmanager
+    ports:
+      - "8081:8081"  # Web UI для JobManager
+    restart: always
+
+  taskmanager:
+    image: flink:latest
+    command: taskmanager  # Запуск TaskManager
+    environment:
+      - JOB_MANAGER_RPC_ADDRESS=jobmanager
+    depends_on:
+      - jobmanager
+    restart: always
