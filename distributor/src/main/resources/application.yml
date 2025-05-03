@@ -1,0 +1,12 @@
+server:
+  port: 8080
+spring:
+  application:
+    name: distributor
+  kafka:
+    bootstrap-servers: kafka:9092
+    consumer:
+      group-id: myGroup
+
+
+
