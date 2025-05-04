@@ -5,6 +5,7 @@
   <artifactId>flink-app</artifactId>
   <version>1.0-SNAPSHOT</version>
   <build>
+    <finalName>flink-job</finalName>
     <plugins>
       <plugin>
         <artifactId>maven-shade-plugin</artifactId>

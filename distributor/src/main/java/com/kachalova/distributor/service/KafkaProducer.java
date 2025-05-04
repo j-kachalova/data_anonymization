@@ -20,8 +20,8 @@ public class KafkaProducer {
 
     public void sendMessage() throws JsonProcessingException {
         RequestDto requestDto = RequestDto.builder().message("TEXT").build();
-        String jsonEmailDTO = objectMapper.writeValueAsString(requestDto);
-        kafkaTemplate.send("make-anonymous", jsonEmailDTO);
+        String jsonRequestDto = objectMapper.writeValueAsString(requestDto);
+        kafkaTemplate.send("make-anonymous", jsonRequestDto);
     }
 
 
