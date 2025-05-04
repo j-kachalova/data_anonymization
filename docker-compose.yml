@@ -26,13 +26,6 @@ services:
     depends_on:
       - zookeeper
 
-  anonymizer:
-    container_name: anonymizer
-    build: anonymizer
-    ports:
-      - 8082:8082
-    depends_on:
-      - kafka
 
   distributor:
     container_name: distributor
@@ -42,20 +35,27 @@ services:
     depends_on:
       - kafka
 
-  jobmanager:
-    image: flink:latest
-    command: jobmanager  # Запуск JobManager
-    environment:
-      - JOB_MANAGER_RPC_ADDRESS=jobmanager
+  flink-jobmanager:
+    image: flink:2.0.0
+    container_name: flink-jobmanager
     ports:
-      - "8081:8081"  # Web UI для JobManager
+      - "8081:8081"
+    environment:
+      - FLINK_MODE=jobmanager
+      - FLINK_RPC_ADDRESS=flink-jobmanager
+      - DISABLE_JEMALLOC=true  # Отключить jemalloc
+    command: jobmanager  # Указываем, что это JobManager
+    depends_on:
+      - kafka
     restart: always
 
-  taskmanager:
-    image: flink:latest
-    command: taskmanager  # Запуск TaskManager
+  flink-taskmanager:
+    image: flink:2.0.0
+    container_name: flink-taskmanager
     environment:
-      - JOB_MANAGER_RPC_ADDRESS=jobmanager
+      - FLINK_MODE=taskmanager
+      - FLINK_JOBMANAGER_RPC_ADDRESS=flink-jobmanager
+    command: taskmanager  # Указываем, что это TaskManager
     depends_on:
-      - jobmanager
+      - flink-jobmanager
     restart: always
