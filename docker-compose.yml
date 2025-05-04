@@ -55,19 +55,4 @@ services:
         FLINK_PROPERTIES=
         jobmanager.rpc.address: jobmanager
         taskmanager.numberOfTaskSlots: 2
-  job-submit:
-    image: flink:2.0.0
-    container_name: flink-job-submit
-    depends_on:
-      - jobmanager
-      - taskmanager
-      - kafka
-    volumes:
-      - ./target/flink-job.jar:/opt/flink/usrlib/flink-job.jar
-    entrypoint: >
-      /bin/sh -c "
-      echo 'Waiting for Flink cluster...';
-      sleep 40;
-      /opt/flink/bin/flink run -d -m jobmanager:8081 /opt/flink/usrlib/flink-job.jar
-      "
-    
+
