@@ -11,4 +11,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class RequestDto {
     String message;
+    String message2;
 }

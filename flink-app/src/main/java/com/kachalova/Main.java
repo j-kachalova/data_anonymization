@@ -8,7 +8,11 @@ import org.apache.flink.api.common.serialization.SimpleStringSchema;
 import org.apache.flink.connector.kafka.source.KafkaSource;
 import org.apache.flink.connector.kafka.source.enumerator.initializer.OffsetsInitializer;
 import org.apache.flink.streaming.api.datastream.DataStream;
+import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.streaming.api.functions.ProcessFunction;
+import org.apache.flink.util.Collector;
+import org.apache.flink.util.OutputTag;
 
 public class Main {
     public static void main(String[] args) throws Exception {
@@ -30,12 +34,34 @@ public class Main {
                 "Kafka Source"
         );
 
-        inputStream.map(json -> {
-                    RequestDto dto = objectMapper.readValue(json, RequestDto.class);
-                    return "Received message: " + dto.getMessage();
-                })
+        // Side outputs для message и message2
+        final OutputTag<String> message1Tag = new OutputTag<String>("message1") {};
+        final OutputTag<String> message2Tag = new OutputTag<String>("message2") {};
+
+
+        SingleOutputStreamOperator<String> mainStream = inputStream.rebalance().process(new ProcessFunction<String, String>() {
+            @Override
+            public void processElement(String value, Context ctx, Collector<String> out) throws Exception {
+                RequestDto dto = objectMapper.readValue(value, RequestDto.class);
+                ctx.output(message1Tag, dto.getMessage());
+                ctx.output(message2Tag, dto.getMessage2());
+            }
+        });
+
+
+        mainStream.getSideOutput(message1Tag)
+                .map(x -> "TaskManager 1: " + x)
+                .slotSharingGroup("group1")
+                .setParallelism(1)
                 .print();
 
-        env.execute("Anonymization Job");
+        mainStream.getSideOutput(message2Tag)
+                .map(x -> "TaskManager 2: " + x)
+                .slotSharingGroup("group2")
+                .setParallelism(1)
+                .print();
+
+
+        env.execute("Parallel Kafka Message Split Job");
     }
 }
