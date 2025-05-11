@@ -2,7 +2,14 @@ package com.kachalova;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kachalova.deserializer.JSONValueDeserializationSchema;
+import com.kachalova.dto.AnonymizedFieldDto;
 import com.kachalova.dto.RequestDto;
+import com.kachalova.dto.ResponseDto;
+import com.kachalova.strategy.AnonymizationMapFunction;
+import com.kachalova.strategy.AnonymizationStrategy;
+import com.kachalova.strategy.DtoAnonymizationMapFunction;
+import com.kachalova.strategy.impl.EmailAnonymizationStrategy;
+import com.kachalova.strategy.impl.PhoneAnonymizationStrategy;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.serialization.SimpleStringSchema;
 import org.apache.flink.connector.kafka.source.KafkaSource;
@@ -14,54 +21,75 @@ import org.apache.flink.streaming.api.functions.ProcessFunction;
 import org.apache.flink.util.Collector;
 import org.apache.flink.util.OutputTag;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class Main {
     public static void main(String[] args) throws Exception {
-        final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+        StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+        env.setParallelism(1); // 2 TaskManager'а
 
         ObjectMapper objectMapper = new ObjectMapper();
 
-        KafkaSource<String> source = KafkaSource.<String>builder()
-                .setBootstrapServers("kafka:9092")
-                .setTopics("make-anonymous")
-                .setGroupId("flink-anonymizer")
-                .setStartingOffsets(OffsetsInitializer.earliest())
-                .setValueOnlyDeserializer(new SimpleStringSchema())
-                .build();
-
         DataStream<String> inputStream = env.fromSource(
-                source,
+                KafkaSource.<String>builder()
+                        .setBootstrapServers("kafka:9092")
+                        .setTopics("make-anonymous")
+                        .setGroupId("flink-anonymizer")
+                        .setStartingOffsets(OffsetsInitializer.earliest())
+                        .setValueOnlyDeserializer(new SimpleStringSchema())
+                        .build(),
                 WatermarkStrategy.noWatermarks(),
                 "Kafka Source"
         );
+        DataStream<RequestDto> dtoStream = inputStream
+                .map(json -> objectMapper.readValue(json, RequestDto.class));
 
-        // Side outputs для message и message2
-        final OutputTag<String> message1Tag = new OutputTag<String>("message1") {};
-        final OutputTag<String> message2Tag = new OutputTag<String>("message2") {};
+// Email stream
+        DataStream<AnonymizedFieldDto> emailStream = dtoStream
+                .map(dto -> new AnonymizedFieldDto(
+                        dto.getId(),
+                        "email",
+                        new EmailAnonymizationStrategy().anonymize(dto.getEmail())
+                )).slotSharingGroup("email");
 
+// Phone stream
+        DataStream<AnonymizedFieldDto> phoneStream = dtoStream
+                .map(dto -> new AnonymizedFieldDto(
+                        dto.getId(),
+                        "phone",
+                        new PhoneAnonymizationStrategy().anonymize(dto.getPhone())
+                )).slotSharingGroup("phone");
 
-        SingleOutputStreamOperator<String> mainStream = inputStream.rebalance().process(new ProcessFunction<String, String>() {
-            @Override
-            public void processElement(String value, Context ctx, Collector<String> out) throws Exception {
-                RequestDto dto = objectMapper.readValue(value, RequestDto.class);
-                ctx.output(message1Tag, dto.getPhone());
-                ctx.output(message2Tag, dto.getEmail());
-            }
-        });
+// Объединяем потоки
+        DataStream<AnonymizedFieldDto> merged = emailStream.union(phoneStream);
 
+// Группируем по ID и собираем поля в ResponseDto
+        DataStream<ResponseDto> responseStream = merged
+                .keyBy(AnonymizedFieldDto::getId)
+                .process(new ProcessFunction<AnonymizedFieldDto, ResponseDto>() {
+                    private final Map<String, ResponseDto> buffer = new HashMap<>();
 
-        mainStream.getSideOutput(message1Tag)
-                .map(x -> "TaskManager 1: " + x)
-                .slotSharingGroup("group1")
-                .setParallelism(1)
-                .print();
+                    @Override
+                    public void processElement(AnonymizedFieldDto value, Context ctx, Collector<ResponseDto> out) {
+                        ResponseDto dto = buffer.getOrDefault(value.getId(), new ResponseDto());
+                        dto.setId(value.getId());
 
-        mainStream.getSideOutput(message2Tag)
-                .map(x -> "TaskManager 2: " + x)
-                .slotSharingGroup("group2")
-                .setParallelism(1)
-                .print();
+                        if ("email".equals(value.getFieldType())) {
+                            dto.setEmail(value.getValue());
+                        } else if ("phone".equals(value.getFieldType())) {
+                            dto.setPhone(value.getValue());
+                        }
 
-
-        env.execute("Parallel Kafka Message Split Job");
+                        // если оба поля получены — выводим и убираем из буфера
+                        if (dto.getEmail() != null && dto.getPhone() != null) {
+                            out.collect(dto);
+                            buffer.remove(value.getId());
+                        } else {
+                            buffer.put(value.getId(), dto);
+                        }
+                    }
+                });
+        env.execute("Distributed Anonymization Job");
     }
 }
