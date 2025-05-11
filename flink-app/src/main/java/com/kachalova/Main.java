@@ -43,8 +43,8 @@ public class Main {
             @Override
             public void processElement(String value, Context ctx, Collector<String> out) throws Exception {
                 RequestDto dto = objectMapper.readValue(value, RequestDto.class);
-                ctx.output(message1Tag, dto.getMessage());
-                ctx.output(message2Tag, dto.getMessage2());
+                ctx.output(message1Tag, dto.getPhone());
+                ctx.output(message2Tag, dto.getEmail());
             }
         });
 

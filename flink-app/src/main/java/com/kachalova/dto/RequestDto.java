@@ -3,22 +3,22 @@ package com.kachalova.dto;
 
 
 public class RequestDto {
-    String message;
-    String message2;
+    String phone;
+    String email;
     public RequestDto() {
 
     }
 
-    public RequestDto(String message, String message2) {
-        this.message = message;
-        this.message2 = message2;
+    public RequestDto(String phone, String email) {
+        this.phone = phone;
+        this.email = email;
     }
 
-    public String getMessage() {
-        return message;
+    public String getPhone() {
+        return phone;
     }
 
-    public String getMessage2() {
-        return message2;
+    public String getEmail() {
+        return email;
     }
 }

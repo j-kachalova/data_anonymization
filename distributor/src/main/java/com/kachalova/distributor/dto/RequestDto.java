@@ -10,6 +10,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class RequestDto {
-    String message;
-    String message2;
+    String phone;
+    String email;
 }
