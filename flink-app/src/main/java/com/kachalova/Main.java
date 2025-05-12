@@ -11,6 +11,7 @@ import com.kachalova.strategy.DtoAnonymizationMapFunction;
 import com.kachalova.strategy.impl.EmailAnonymizationStrategy;
 import com.kachalova.strategy.impl.EmailTransformStrategy;
 import com.kachalova.strategy.impl.PhoneAnonymizationStrategy;
+import com.kachalova.strategy.impl.PhoneTransformStrategy;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.serialization.SimpleStringSchema;
 import org.apache.flink.connector.kafka.source.KafkaSource;
@@ -63,7 +64,13 @@ public class Main {
                 .map(dto -> new AnonymizedFieldDto(
                         dto.getId(),
                         "phone",
-                        new PhoneAnonymizationStrategy().anonymize(dto.getPhone())
+                        new PhoneTransformStrategy(
+                                PhoneTransformStrategy.Mode.GENERATE,
+                                PhoneTransformStrategy.Format.STRING,
+                                false,
+                                0,
+                                null
+                        ).anonymize(dto.getPhone())
                 )).slotSharingGroup("phone");
 
 // Объединяем потоки
