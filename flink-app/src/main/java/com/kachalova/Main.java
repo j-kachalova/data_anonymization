@@ -9,6 +9,7 @@ import com.kachalova.strategy.AnonymizationMapFunction;
 import com.kachalova.strategy.AnonymizationStrategy;
 import com.kachalova.strategy.DtoAnonymizationMapFunction;
 import com.kachalova.strategy.impl.EmailAnonymizationStrategy;
+import com.kachalova.strategy.impl.EmailTransformStrategy;
 import com.kachalova.strategy.impl.PhoneAnonymizationStrategy;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.serialization.SimpleStringSchema;
@@ -50,7 +51,11 @@ public class Main {
                 .map(dto -> new AnonymizedFieldDto(
                         dto.getId(),
                         "email",
-                        new EmailAnonymizationStrategy().anonymize(dto.getEmail())
+                        new EmailTransformStrategy(true,
+                                false,
+                                EmailTransformStrategy.InvalidEmailAction.GENERATE,
+                                EmailTransformStrategy.EmailType.UUID_V4,
+                                50).anonymize(dto.getEmail())
                 )).slotSharingGroup("email");
 
 // Phone stream
@@ -90,6 +95,9 @@ public class Main {
                         }
                     }
                 });
+        responseStream
+                .map(objectMapper::writeValueAsString)
+                .print();
         env.execute("Distributed Anonymization Job");
     }
 }
