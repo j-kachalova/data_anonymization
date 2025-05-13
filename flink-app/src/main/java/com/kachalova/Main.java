@@ -14,6 +14,8 @@ import com.kachalova.strategy.impl.PhoneAnonymizationStrategy;
 import com.kachalova.strategy.impl.PhoneTransformStrategy;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.serialization.SimpleStringSchema;
+import org.apache.flink.connector.kafka.sink.KafkaRecordSerializationSchema;
+import org.apache.flink.connector.kafka.sink.KafkaSink;
 import org.apache.flink.connector.kafka.source.KafkaSource;
 import org.apache.flink.connector.kafka.source.enumerator.initializer.OffsetsInitializer;
 import org.apache.flink.streaming.api.datastream.DataStream;
@@ -102,9 +104,20 @@ public class Main {
                         }
                     }
                 });
+        // Сериализуем в JSON и направляем в Kafka
         responseStream
-                .map(objectMapper::writeValueAsString)
-                .print();
+                .map(response -> objectMapper.writeValueAsString(response))
+                .sinkTo(
+                        KafkaSink.<String>builder()
+                                .setBootstrapServers("kafka:9092")
+                                .setRecordSerializer(
+                                        KafkaRecordSerializationSchema.builder()
+                                                .setTopic("anonymized-output") // Название выходного топика
+                                                .setValueSerializationSchema(new SimpleStringSchema())
+                                                .build()
+                                )
+                                .build()
+                );
         env.execute("Distributed Anonymization Job");
     }
 }

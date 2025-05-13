@@ -1,6 +1,8 @@
 package com.kachalova.distributor.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.kachalova.distributor.dto.RequestDto;
+import com.kachalova.distributor.service.KafkaConsumer;
 import com.kachalova.distributor.service.KafkaProducer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class AnonymizationController {
     private final KafkaProducer kafkaProducer;
     @PostMapping("")
-    public void anonymize() throws JsonProcessingException {
-       kafkaProducer.sendMessage();
+    public void anonymize(@RequestBody RequestDto requestDto) throws JsonProcessingException {
+       kafkaProducer.sendMessage(requestDto);
     }
 }
