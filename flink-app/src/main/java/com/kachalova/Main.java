@@ -112,7 +112,7 @@ public class Main {
                                 .setBootstrapServers("kafka:9092")
                                 .setRecordSerializer(
                                         KafkaRecordSerializationSchema.builder()
-                                                .setTopic("anonymized-output") // Название выходного топика
+                                                .setTopic("result") // Название выходного топика
                                                 .setValueSerializationSchema(new SimpleStringSchema())
                                                 .build()
                                 )
