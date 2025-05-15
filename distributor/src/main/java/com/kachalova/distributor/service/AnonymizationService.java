@@ -1,5 +1,7 @@
 package com.kachalova.distributor.service;
 
+import com.kachalova.distributor.dao.entity.AnonymizedData;
+import com.kachalova.distributor.dao.entity.LinkTable;
 import com.kachalova.distributor.dao.entity.OriginalData;
 import com.kachalova.distributor.dao.repository.AnonymizedDataRepository;
 import com.kachalova.distributor.dao.repository.LinkTableRepository;
@@ -13,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -60,5 +63,14 @@ public class AnonymizationService {
                 .flatMap(link -> originalRepo.findById(link.getOriginalId()))
                 .map(originalDataMapper::toDto);
     }
-
+    public List<OriginalData> getAllOriginalData() {
+        List<OriginalData> data = originalRepo.findAll();
+        return data;
+    }
+    public List<LinkTable> getAllLinks() {
+        return linkRepo.findAll();
+    }
+    public List<AnonymizedData> getAllAnonymizedData() {
+        return anonymizedRepo.findAll();
+    }
 }

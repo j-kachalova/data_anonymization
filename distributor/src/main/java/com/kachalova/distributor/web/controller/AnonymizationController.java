@@ -1,5 +1,7 @@
 package com.kachalova.distributor.web.controller;
 
+import com.kachalova.distributor.dao.entity.AnonymizedData;
+import com.kachalova.distributor.dao.entity.LinkTable;
 import com.kachalova.distributor.dao.entity.OriginalData;
 import com.kachalova.distributor.mapper.OriginalDataMapper;
 import com.kachalova.distributor.service.AnonymizationService;
@@ -11,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @Slf4j
@@ -52,5 +55,16 @@ public class AnonymizationController {
     public ResponseEntity<OriginalDataDto> deanonymize(@PathVariable UUID anonymizedId) {
         return ResponseEntity.of(anonymizationService.getOriginalDtoByAnonymizedId(anonymizedId));
     }
-
+    @GetMapping(("/all-original"))
+    public ResponseEntity<List<OriginalData>> getAllOriginalData() {
+        return ResponseEntity.ok(anonymizationService.getAllOriginalData());
+    }
+    @GetMapping("/all-link")
+    public ResponseEntity<List<LinkTable>> getAllLinks() {
+        return ResponseEntity.ok(anonymizationService.getAllLinks());
+    }
+    @GetMapping("/all-anonymized")
+    public ResponseEntity<List<AnonymizedData>> getAllAnonymizedData() {
+        return ResponseEntity.ok(anonymizationService.getAllAnonymizedData());
+    }
 }
