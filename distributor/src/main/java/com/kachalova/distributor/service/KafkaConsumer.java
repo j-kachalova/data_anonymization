@@ -2,7 +2,7 @@ package com.kachalova.distributor.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.kachalova.distributor.dto.ResponseDto;
+import com.kachalova.distributor.web.dto.ResponseDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;

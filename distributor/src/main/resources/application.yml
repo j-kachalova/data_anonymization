@@ -7,6 +7,13 @@ spring:
     bootstrap-servers: kafka:9092
     consumer:
       group-id: myGroup
-
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: update
 
 

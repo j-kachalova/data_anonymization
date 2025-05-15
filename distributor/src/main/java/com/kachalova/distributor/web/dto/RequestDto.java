@@ -1,16 +1,16 @@
-package com.kachalova.distributor.dto;
+package com.kachalova.distributor.web.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Builder
+
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class RequestDto {
-    String id;
-    String phone;
-    String email;
+    private String phone;
+    private String email;
 }

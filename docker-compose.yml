@@ -26,6 +26,15 @@ services:
     depends_on:
       - zookeeper
 
+  postgres:
+    image: postgres:14
+    container_name: postgres
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_USER=${DB_USERNAME}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=data_anonymization
 
   distributor:
     container_name: distributor
@@ -34,6 +43,8 @@ services:
       - 8080:8080
     depends_on:
       - kafka
+    env_file:
+      - .env
 
   jobmanager:
     image: flink:latest

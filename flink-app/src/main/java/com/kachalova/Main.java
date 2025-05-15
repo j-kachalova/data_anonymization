@@ -1,16 +1,10 @@
 package com.kachalova;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.kachalova.deserializer.JSONValueDeserializationSchema;
 import com.kachalova.dto.AnonymizedFieldDto;
 import com.kachalova.dto.RequestDto;
 import com.kachalova.dto.ResponseDto;
-import com.kachalova.strategy.AnonymizationMapFunction;
-import com.kachalova.strategy.AnonymizationStrategy;
-import com.kachalova.strategy.DtoAnonymizationMapFunction;
-import com.kachalova.strategy.impl.EmailAnonymizationStrategy;
 import com.kachalova.strategy.impl.EmailTransformStrategy;
-import com.kachalova.strategy.impl.PhoneAnonymizationStrategy;
 import com.kachalova.strategy.impl.PhoneTransformStrategy;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.serialization.SimpleStringSchema;
@@ -19,11 +13,9 @@ import org.apache.flink.connector.kafka.sink.KafkaSink;
 import org.apache.flink.connector.kafka.source.KafkaSource;
 import org.apache.flink.connector.kafka.source.enumerator.initializer.OffsetsInitializer;
 import org.apache.flink.streaming.api.datastream.DataStream;
-import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.ProcessFunction;
 import org.apache.flink.util.Collector;
-import org.apache.flink.util.OutputTag;
 
 import java.util.HashMap;
 import java.util.Map;
