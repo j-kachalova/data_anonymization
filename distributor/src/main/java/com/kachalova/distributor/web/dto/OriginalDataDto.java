@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class RequestDto {
+public class OriginalDataDto {
     private String phone;
     private String email;
 }

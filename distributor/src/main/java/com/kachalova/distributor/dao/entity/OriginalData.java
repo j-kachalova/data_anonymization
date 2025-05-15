@@ -17,7 +17,7 @@ import java.util.UUID;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class StartData {
+public class OriginalData {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;

@@ -1,24 +1,25 @@
 package com.kachalova.distributor.mapper;
 
-import com.kachalova.distributor.dao.entity.StartData;
-import com.kachalova.distributor.web.dto.RequestDto;
+import com.kachalova.distributor.dao.entity.OriginalData;
+
+import com.kachalova.distributor.web.dto.OriginalDataDto;
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class StartDataMapperTest {
+class OriginalDataMapperTest {
 
-    private final StartDataMapper mapper = Mappers.getMapper(StartDataMapper.class);
+    private final OriginalDataMapper mapper = Mappers.getMapper(OriginalDataMapper.class);
 
     @Test
     void shouldMapDtoToEntity() {
-        RequestDto dto = RequestDto.builder()
+        OriginalDataDto dto = OriginalDataDto.builder()
                 .email("test@example.com")
                 .phone("1234567890")
                 .build();
 
-        StartData entity = mapper.requestDtoToStartData(dto);
+        OriginalData entity = mapper.toEntity(dto);
 
         assertThat(entity).isNotNull();
         assertThat(entity.getEmail()).isEqualTo("test@example.com");
@@ -27,12 +28,12 @@ class StartDataMapperTest {
 
     @Test
     void shouldMapEntityToDto() {
-        StartData entity = StartData.builder()
+        OriginalData entity = OriginalData.builder()
                 .email("user@test.com")
                 .phone("88005553535")
                 .build();
 
-        RequestDto dto = mapper.startDatatoRequestDto(entity);
+        OriginalDataDto dto = mapper.toDto(entity);
 
         assertThat(dto).isNotNull();
         assertThat(dto.getEmail()).isEqualTo("user@test.com");

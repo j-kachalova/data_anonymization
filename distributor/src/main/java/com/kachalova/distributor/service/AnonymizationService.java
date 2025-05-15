@@ -1,32 +1,64 @@
 package com.kachalova.distributor.service;
 
-import com.kachalova.distributor.dao.entity.StartData;
-import com.kachalova.distributor.dao.repository.StartDataRepo;
-import com.kachalova.distributor.mapper.StartDataMapper;
-import com.kachalova.distributor.web.dto.RequestDto;
+import com.kachalova.distributor.dao.entity.OriginalData;
+import com.kachalova.distributor.dao.repository.AnonymizedDataRepository;
+import com.kachalova.distributor.dao.repository.LinkTableRepository;
+import com.kachalova.distributor.dao.repository.OriginalRepo;
+import com.kachalova.distributor.mapper.AnonymizedDataMapper;
+import com.kachalova.distributor.mapper.OriginalDataMapper;
+import com.kachalova.distributor.web.dto.AnonymizedDataDto;
+import com.kachalova.distributor.web.dto.OriginalDataDto;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
+import java.util.UUID;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class AnonymizationService {
 
-    private final StartDataRepo startDataRepo;
-    private final StartDataMapper mapper;
+    private final OriginalRepo originalRepo;
+    private final OriginalDataMapper originalDataMapper;
+    private final AnonymizedDataMapper anonymizedDataMapper;
+    private final AnonymizedDataRepository anonymizedRepo;
+    private final LinkTableRepository linkRepo;
 
-    public StartData addStartData(RequestDto requestDto) {
-        log.info("StartDataServiceImpl: addStartData requestDto: {}", requestDto);
-        StartData startDataFromDB = startDataRepo.findByEmail(requestDto.getEmail());
-        log.debug("StartDataServiceImpl: addStartData startDataFromDB: {}", startDataFromDB);
+
+    public OriginalData saveOriginal(OriginalDataDto originalDataDto) {
+        log.info("AnonymizationService: saveOriginal requestDto: {}", originalDataDto);
+
+        OriginalData startDataFromDB = originalRepo.findByEmail(originalDataDto.getEmail())
+                .orElse(null);
+
+        log.debug("AnonymizationService: saveOriginal startDataFromDB: {}", startDataFromDB);
+
         if (startDataFromDB != null) {
             return startDataFromDB;
         }
-        StartData startData = mapper.requestDtoToStartData(requestDto);
-        startDataRepo.save(startData);
-        log.info("StartDataServiceImpl: addStartData startData: {}", startData);
+
+        OriginalData startData = originalDataMapper.toEntity(originalDataDto);
+        originalRepo.save(startData);
+        log.info("AnonymizationService: saveOriginal startData: {}", startData);
         return startData;
+    }
+
+    public OriginalData findOriginalById(UUID id) {
+        return originalRepo.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Данные не найдены: " + id));
+    }
+
+    public Optional<AnonymizedDataDto> getAnonymizedDto(UUID anonymizedId) {
+        return anonymizedRepo.findById(anonymizedId)
+                .map(anonymizedDataMapper::toDto);
+    }
+    public Optional<OriginalDataDto> getOriginalDtoByAnonymizedId(UUID anonymizedId) {
+        return linkRepo.findByAnonymizedId(anonymizedId)
+                .flatMap(link -> originalRepo.findById(link.getOriginalId()))
+                .map(originalDataMapper::toDto);
     }
 
 }

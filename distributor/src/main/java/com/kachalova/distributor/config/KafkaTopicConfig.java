@@ -25,7 +25,7 @@ public class KafkaTopicConfig {
 
     @Bean
     public NewTopic makeAnonymous() {
-        return new NewTopic("make-anonymous", 1, (short) 1);
+        return new NewTopic("original-data-topic", 1, (short) 1);
     }
     @Bean
     public NewTopic getResult() {

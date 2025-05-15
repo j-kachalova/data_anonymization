@@ -2,26 +2,24 @@ package com.kachalova.distributor.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.kachalova.distributor.web.dto.RequestDto;
+import com.kachalova.distributor.web.dto.OriginalDataDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.UUID;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class KafkaProducer {
-    private final KafkaTemplate<String, String> kafkaTemplate;
+    private final KafkaTemplate<String, OriginalDataDto> kafkaTemplate;
 
-    private final ObjectMapper objectMapper;
+    private static final String TOPIC = "original-data-topic";
 
-    public void sendMessage(RequestDto requestDto) throws JsonProcessingException {
-        String jsonRequestDto = objectMapper.writeValueAsString(requestDto);
-        log.info("KafkaProducer sendMessage jsonRequestDto:{}",jsonRequestDto);
-        kafkaTemplate.send("make-anonymous", jsonRequestDto);
+    public void sendOriginalDataDto(OriginalDataDto dto) {
+        kafkaTemplate.send(TOPIC, UUID.randomUUID().toString(), dto);
     }
-
-
 
 }
