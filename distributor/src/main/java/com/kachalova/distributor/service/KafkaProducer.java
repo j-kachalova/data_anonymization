@@ -16,8 +16,8 @@ public class KafkaProducer {
 
     private static final String TOPIC = "original-data-topic";
 
-    public void sendOriginalDataDto(OriginalDataDto dto) {
-        kafkaTemplate.send(TOPIC, UUID.randomUUID().toString(), dto);
+    public void sendOriginalDataDto(UUID id, OriginalDataDto dto) {
+        kafkaTemplate.send(TOPIC, id.toString(), dto);
     }
 
 }

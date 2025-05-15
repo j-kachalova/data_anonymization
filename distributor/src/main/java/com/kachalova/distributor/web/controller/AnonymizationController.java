@@ -34,7 +34,7 @@ public class AnonymizationController {
     public ResponseEntity<?> anonymize(@PathVariable UUID id) {
         OriginalData data = anonymizationService.findOriginalById(id);
         OriginalDataDto dto = originalDataMapper.toDto(data);
-        kafkaProducer.sendOriginalDataDto(dto);
+        kafkaProducer.sendOriginalDataDto(id, dto);
         return ResponseEntity.ok("Данные отправлены в Kafka для анонимизации");
     }
 
