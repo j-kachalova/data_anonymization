@@ -48,13 +48,16 @@ services:
 
   jobmanager:
     image: flink:latest
+    container_name: jobmanager
     ports:
       - "8081:8081"
     command: jobmanager
+    volumes:
+      - ./flink-config/flink-conf.yaml:/opt/flink/conf/flink-conf.yaml
     environment:
       - |
         FLINK_PROPERTIES=
-        jobmanager.rpc.address: jobmanager        
+        jobmanager.rpc.address: jobmanager
 
   taskmanager1:
     image: flink:latest
@@ -62,11 +65,12 @@ services:
     depends_on:
       - jobmanager
     command: taskmanager
+    volumes:
+      - ./flink-config/flink-conf.yaml:/opt/flink/conf/flink-conf.yaml
     environment:
       - |
         FLINK_PROPERTIES=
         jobmanager.rpc.address: jobmanager
-        taskmanager.numberOfTaskSlots: 1
 
   taskmanager2:
     image: flink:latest
@@ -74,11 +78,12 @@ services:
     depends_on:
       - jobmanager
     command: taskmanager
+    volumes:
+      - ./flink-config/flink-conf.yaml:/opt/flink/conf/flink-conf.yaml
     environment:
       - |
         FLINK_PROPERTIES=
         jobmanager.rpc.address: jobmanager
-        taskmanager.numberOfTaskSlots: 1
 
   taskmanager3:
     image: flink:latest
@@ -86,8 +91,21 @@ services:
     depends_on:
       - jobmanager
     command: taskmanager
+    volumes:
+      - ./flink-config/flink-conf.yaml:/opt/flink/conf/flink-conf.yaml
     environment:
       - |
         FLINK_PROPERTIES=
         jobmanager.rpc.address: jobmanager
-        taskmanager.numberOfTaskSlots: 1
+  taskmanager4:
+    image: flink:latest
+    container_name: taskmanager4
+    depends_on:
+      - jobmanager
+    command: taskmanager
+    volumes:
+      - ./flink-config/flink-conf.yaml:/opt/flink/conf/flink-conf.yaml
+    environment:
+      - |
+        FLINK_PROPERTIES=
+        jobmanager.rpc.address: jobmanager

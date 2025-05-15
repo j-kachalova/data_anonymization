@@ -28,7 +28,7 @@ import java.util.Map;
 public class Main {
     public static void main(String[] args) throws Exception {
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
-        env.setParallelism(1);
+
 
         ObjectMapper objectMapper = new ObjectMapper();
 
@@ -71,7 +71,8 @@ public class Main {
                                 EmailTransformStrategy.InvalidEmailAction.GENERATE,
                                 EmailTransformStrategy.EmailType.UUID_V4,
                                 50).anonymize(record.value().getEmail())
-                ));
+                )).slotSharingGroup("email")
+                .setParallelism(1);
 
         // Phone stream
         DataStream<AnonymizedFieldDto> phoneStream = inputStream
@@ -85,7 +86,8 @@ public class Main {
                                 0,
                                 null
                         ).anonymize(record.value().getPhone())
-                ));
+                )).slotSharingGroup("phone")
+                .setParallelism(1);
 
         DataStream<AnonymizedFieldDto> merged = emailStream.union(phoneStream);
 
@@ -112,7 +114,9 @@ public class Main {
                             buffer.put(value.getId(), dto);
                         }
                     }
-                });
+                })
+                .slotSharingGroup("merger") // 💡 третий TaskManager
+                .setParallelism(1);
 
         responseStream
                 .map(dto -> objectMapper.writeValueAsString(dto))
@@ -126,7 +130,8 @@ public class Main {
                                                 .build()
                                 )
                                 .build()
-                );
+                )
+                .setParallelism(1);
 
         env.execute("Kafka-based Distributed Anonymization Job");
     }
