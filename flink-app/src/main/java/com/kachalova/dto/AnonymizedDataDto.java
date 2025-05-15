@@ -1,6 +1,6 @@
 package com.kachalova.dto;
 
-public class ResponseDto {
+public class AnonymizedDataDto {
     String id;
     String phone;
     String email;
