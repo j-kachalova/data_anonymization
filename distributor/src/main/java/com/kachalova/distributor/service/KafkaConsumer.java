@@ -6,6 +6,7 @@ import com.kachalova.distributor.dao.entity.AnonymizedData;
 import com.kachalova.distributor.dao.entity.LinkTable;
 import com.kachalova.distributor.dao.repository.AnonymizedDataRepository;
 import com.kachalova.distributor.dao.repository.LinkTableRepository;
+import com.kachalova.distributor.dao.repository.OriginalRepo;
 import com.kachalova.distributor.web.dto.AnonymizedDataDto;
 import com.kachalova.distributor.web.dto.KafkaAnonymizedDataDto;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +22,7 @@ import java.util.UUID;
 public class KafkaConsumer {
     private final ObjectMapper objectMapper;
     private final AnonymizedDataRepository anonymizedDataRepository;
+    private final OriginalRepo originalRepo;
     private final LinkTableRepository linkTableRepository;
     @KafkaListener(topics = "result", groupId = "myGroup")
     public void getResult(String message) throws JsonProcessingException {
@@ -31,14 +33,15 @@ public class KafkaConsumer {
             AnonymizedData anonymized = AnonymizedData.builder()
                     .email(dto.getEmail())
                     .phone(dto.getPhone())
+                    .passport(dto.getPassport())
                     .build();
 
             anonymized = anonymizedDataRepository.save(anonymized);
 
             // Сохраняем связь
             LinkTable link = new LinkTable();
-            link.setOriginalId(UUID.fromString(dto.getId()));
-            link.setAnonymizedId(anonymized.getId());
+            link.setOriginalData(originalRepo.findById(UUID.fromString(dto.getId())).get());
+            link.setAnonymizedData(anonymized);
 
             linkTableRepository.save(link);
 

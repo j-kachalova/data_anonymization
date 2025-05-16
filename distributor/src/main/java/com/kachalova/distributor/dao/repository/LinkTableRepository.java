@@ -7,6 +7,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface LinkTableRepository extends JpaRepository<LinkTable, UUID> {
-    Optional<LinkTable> findByAnonymizedId(UUID anonymizedId);
+    Optional<LinkTable> findByAnonymizedData_Id(UUID anonymizedId);
 }
 

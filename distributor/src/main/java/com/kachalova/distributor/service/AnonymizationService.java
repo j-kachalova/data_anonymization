@@ -59,8 +59,8 @@ public class AnonymizationService {
                 .map(anonymizedDataMapper::toDto);
     }
     public Optional<OriginalDataDto> getOriginalDtoByAnonymizedId(UUID anonymizedId) {
-        return linkRepo.findByAnonymizedId(anonymizedId)
-                .flatMap(link -> originalRepo.findById(link.getOriginalId()))
+        return linkRepo.findByAnonymizedData_Id(anonymizedId)
+                .flatMap(link -> originalRepo.findById(link.getOriginalData().getId()))
                 .map(originalDataMapper::toDto);
     }
     public List<OriginalData> getAllOriginalData() {
