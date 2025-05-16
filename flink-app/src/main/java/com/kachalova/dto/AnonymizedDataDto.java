@@ -1,31 +1,12 @@
 package com.kachalova.dto;
 
+import lombok.Data;
+
+@Data
 public class AnonymizedDataDto {
-    String id;
-    String phone;
-    String email;
+    private String id;
+    private String passport;
+    private String phone;
+    private String email;
 
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public void setPhone(String phone) {
-        this.phone = phone;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public String getPhone() {
-        return phone;
-    }
-
-    public String getEmail() {
-        return email;
-    }
 }

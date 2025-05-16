@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AnonymizedDataDto {
+    private String passport;
     private String phone;
     private String email;
 }

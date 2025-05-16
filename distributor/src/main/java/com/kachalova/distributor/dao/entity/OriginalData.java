@@ -21,6 +21,7 @@ public class OriginalData {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
+    private String passport;
     private String phone;
     private String email;
 }

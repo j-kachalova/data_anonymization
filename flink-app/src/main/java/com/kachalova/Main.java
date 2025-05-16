@@ -5,6 +5,7 @@ import com.kachalova.dto.AnonymizedDataDto;
 import com.kachalova.dto.AnonymizedFieldDto;
 import com.kachalova.dto.OriginalDataDto;
 import com.kachalova.strategy.impl.EmailTransformStrategy;
+import com.kachalova.strategy.impl.PassportTransformStrategy;
 import com.kachalova.strategy.impl.PhoneTransformStrategy;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.serialization.SimpleStringSchema;
@@ -73,7 +74,14 @@ public class Main {
                                 50).anonymize(record.value().getEmail())
                 )).slotSharingGroup("email")
                 .setParallelism(1);
-
+// passport stream
+        DataStream<AnonymizedFieldDto> passportStream = inputStream
+                .map(record -> new AnonymizedFieldDto(
+                        record.key(),
+                        "passport",
+                        new PassportTransformStrategy().anonymize(record.value().getPassport())
+                )).slotSharingGroup("passport")
+                .setParallelism(1);
         // Phone stream
         DataStream<AnonymizedFieldDto> phoneStream = inputStream
                 .map(record -> new AnonymizedFieldDto(
@@ -89,7 +97,7 @@ public class Main {
                 )).slotSharingGroup("phone")
                 .setParallelism(1);
 
-        DataStream<AnonymizedFieldDto> merged = emailStream.union(phoneStream);
+        DataStream<AnonymizedFieldDto> merged = emailStream.union(phoneStream).union(passportStream);
 
         DataStream<AnonymizedDataDto> responseStream = merged
                 .keyBy(AnonymizedFieldDto::getId)
@@ -101,13 +109,17 @@ public class Main {
                         AnonymizedDataDto dto = buffer.getOrDefault(value.getId(), new AnonymizedDataDto());
                         dto.setId(value.getId());
 
-                        if ("email".equals(value.getFieldType())) {
-                            dto.setEmail(value.getValue());
-                        } else if ("phone".equals(value.getFieldType())) {
-                            dto.setPhone(value.getValue());
+                        switch (value.getFieldType()) {
+                            case "email" -> dto.setEmail(value.getValue());
+                            case "phone" -> dto.setPhone(value.getValue());
+                            case "passport" -> dto.setPassport(value.getValue());
                         }
 
-                        if (dto.getEmail() != null && dto.getPhone() != null) {
+                        // Проверка, все ли поля установлены
+                        if (dto.getEmail() != null &&
+                                dto.getPhone() != null &&
+                                dto.getPassport() != null) {
+
                             out.collect(dto);
                             buffer.remove(value.getId());
                         } else {

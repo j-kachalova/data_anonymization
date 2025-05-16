@@ -1,6 +1,6 @@
 jobmanager.rpc.address: jobmanager
 taskmanager.numberOfTaskSlots: 1
-parallelism.default: 3
+parallelism.default: 5
 
 rest.port: 8081
 rest.address: jobmanager
