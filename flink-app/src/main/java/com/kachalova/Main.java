@@ -6,6 +6,7 @@ import com.kachalova.dto.AnonymizedFieldDto;
 import com.kachalova.dto.OriginalDataDto;
 import com.kachalova.strategy.AnonymizationMapFunction;
 import com.kachalova.strategy.AnonymizationStrategy;
+import com.kachalova.strategy.StrategySelector;
 import com.kachalova.strategy.impl.EmailTransformStrategy;
 import com.kachalova.strategy.impl.PassportTransformStrategy;
 import com.kachalova.strategy.impl.PhoneTransformStrategy;
@@ -125,38 +126,12 @@ public class Main {
     }
 
     public static DataStream<AnonymizedFieldDto> stream(String type, DataStream<ConsumerRecord<String, OriginalDataDto>> inputStream) {
-        AnonymizationStrategy strategy = addStrategy(type);
+        AnonymizationStrategy strategy = StrategySelector.addStrategy(type);
         return inputStream
                 .map(new AnonymizationMapFunction(type, strategy))
                 .slotSharingGroup(type)
                 .setParallelism(1);
     }
 
-    public static AnonymizationStrategy addStrategy(String type) {
-        AnonymizationStrategy strategy = switch (type) {
-            case "email" -> new EmailTransformStrategy(true, false,
-                    EmailTransformStrategy.InvalidEmailAction.GENERATE,
-                    EmailTransformStrategy.EmailType.UUID_V4,
-                    50);
-            case "phone" -> new PhoneTransformStrategy(
-                    PhoneTransformStrategy.Mode.GENERATE,
-                    PhoneTransformStrategy.Format.STRING,
-                    false,
-                    0,
-                    null
-            );
-            case "passport" -> new PassportTransformStrategy();
-            default -> null;
-        };
-        return strategy;
-    }
-    public static String getValue(OriginalDataDto record, String type){
-        String value = switch (type) {
-            case "email" -> record.getEmail();
-            case "phone" -> record.getPhone();
-            case "passport" -> record.getPassport();
-            default -> null;
-        };
-        return value;
-    }
+
 }

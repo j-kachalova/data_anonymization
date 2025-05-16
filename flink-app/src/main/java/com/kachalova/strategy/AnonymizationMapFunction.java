@@ -19,7 +19,7 @@ public class AnonymizationMapFunction implements MapFunction<ConsumerRecord<Stri
 
     @Override
     public AnonymizedFieldDto map(ConsumerRecord<String, OriginalDataDto> record) {
-        String value = Main.getValue(record.value(), type); // Вызов статического метода
+        String value = StrategySelector.getValue(record.value(), type); // Вызов статического метода
         return new AnonymizedFieldDto(record.key(), type, strategy.anonymize(value));
     }
 }
