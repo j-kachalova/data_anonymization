@@ -34,20 +34,34 @@ public class AnonymizationService {
     public OriginalData saveOriginal(OriginalDataDto originalDataDto) {
         log.info("AnonymizationService: saveOriginal requestDto: {}", originalDataDto);
 
-        OriginalData startDataFromDB = originalRepo.findByEmail(originalDataDto.getEmail())
-                .orElse(null);
-
-        log.debug("AnonymizationService: saveOriginal startDataFromDB: {}", startDataFromDB);
-
-        if (startDataFromDB != null) {
-            return startDataFromDB;
+        // Проверка по email
+        Optional<OriginalData> byEmail = originalRepo.findByEmail(originalDataDto.getEmail());
+        if (byEmail.isPresent()) {
+            log.debug("AnonymizationService: найдено по email: {}", byEmail.get());
+            return byEmail.get();
         }
 
+        // Проверка по номеру телефона
+        Optional<OriginalData> byPhone = originalRepo.findByPhone(originalDataDto.getPhone());
+        if (byPhone.isPresent()) {
+            log.debug("AnonymizationService: найдено по телефону: {}", byPhone.get());
+            return byPhone.get();
+        }
+
+        // Проверка по паспорту
+        Optional<OriginalData> byPassport = originalRepo.findByPassport(originalDataDto.getPassport());
+        if (byPassport.isPresent()) {
+            log.debug("AnonymizationService: найдено по паспорту: {}", byPassport.get());
+            return byPassport.get();
+        }
+
+        // Если не найдено — сохраняем
         OriginalData startData = originalDataMapper.toEntity(originalDataDto);
         originalRepo.save(startData);
-        log.info("AnonymizationService: saveOriginal startData: {}", startData);
+        log.info("AnonymizationService: сохранены новые данные: {}", startData);
         return startData;
     }
+
 
     public OriginalData findOriginalById(UUID id) {
         return originalRepo.findById(id)

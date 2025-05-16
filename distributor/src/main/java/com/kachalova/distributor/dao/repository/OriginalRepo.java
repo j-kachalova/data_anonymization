@@ -9,5 +9,7 @@ import java.util.UUID;
 
 @Repository
 public interface OriginalRepo extends JpaRepository<OriginalData, UUID> {
-    Optional<OriginalData> findByEmail(String email); // ✅ корректный метод
+    Optional<OriginalData> findByEmail(String email);
+    Optional<OriginalData> findByPhone(String phone);
+    Optional<OriginalData> findByPassport(String passport);
 }
