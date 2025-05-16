@@ -2,12 +2,15 @@ package com.kachalova.strategy.impl;
 
 import com.kachalova.strategy.AnonymizationStrategy;
 
+import java.io.Serializable;
 import java.util.Random;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class EmailTransformStrategy implements AnonymizationStrategy {
+public class EmailTransformStrategy implements AnonymizationStrategy, Serializable{
+
+    private static final long serialVersionUID = 1L;
 
     public enum InvalidEmailAction {
         REJECT, PASSTHROUGH, NULL, GENERATE
@@ -22,7 +25,8 @@ public class EmailTransformStrategy implements AnonymizationStrategy {
     private final InvalidEmailAction invalidEmailAction;
     private final EmailType emailType;
     private final int maxLength;
-    private final Random random = new Random();
+
+    private transient Random random = new Random(); // transient: не сериализуется
 
     public EmailTransformStrategy(
             boolean preserveDomain,
@@ -57,15 +61,16 @@ public class EmailTransformStrategy implements AnonymizationStrategy {
     }
 
     private String handleInvalidEmail(String email) {
-        switch (invalidEmailAction) {
-            case PASSTHROUGH: return email;
-            case NULL: return null;
-            case GENERATE: return anonymize("generated@example.com");
-            case REJECT: default: throw new IllegalArgumentException("Invalid email: " + email);
-        }
+        return switch (invalidEmailAction) {
+            case PASSTHROUGH -> email;
+            case NULL -> null;
+            case GENERATE -> anonymize("generated@example.com");
+            case REJECT -> throw new IllegalArgumentException("Invalid email: " + email);
+        };
     }
 
     private String generateLocalPart() {
+        ensureRandomInitialized();
         return switch (emailType) {
             case UUID_V4 -> UUID.randomUUID().toString().replaceAll("-", "");
             case FULLNAME -> "user" + random.nextInt(10000);
@@ -80,6 +85,7 @@ public class EmailTransformStrategy implements AnonymizationStrategy {
     }
 
     private String randomString(int length) {
+        ensureRandomInitialized();
         String chars = "abcdefghijklmnopqrstuvwxyz0123456789";
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < length; i++) {
@@ -87,5 +93,10 @@ public class EmailTransformStrategy implements AnonymizationStrategy {
         }
         return sb.toString();
     }
-}
 
+    private void ensureRandomInitialized() {
+        if (random == null) {
+            random = new Random();
+        }
+    }
+}

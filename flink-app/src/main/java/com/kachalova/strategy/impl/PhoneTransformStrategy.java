@@ -2,9 +2,12 @@ package com.kachalova.strategy.impl;
 
 import com.kachalova.strategy.AnonymizationStrategy;
 
+import java.io.Serializable;
 import java.util.Random;
 
-public class PhoneTransformStrategy implements AnonymizationStrategy {
+public class PhoneTransformStrategy implements AnonymizationStrategy, Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     public enum Mode {
         MASK, GENERATE, GENERALIZE
@@ -19,7 +22,8 @@ public class PhoneTransformStrategy implements AnonymizationStrategy {
     private final boolean preserveLastDigits;
     private final int preserveCount;
     private final String generalizationLabel;
-    private final Random random = new Random();
+
+    private transient Random random = new Random(); // transient, чтобы не сериализовался напрямую
 
     public PhoneTransformStrategy(Mode mode, Format format, boolean preserveLastDigits, int preserveCount, String generalizationLabel) {
         this.mode = mode;
@@ -49,12 +53,16 @@ public class PhoneTransformStrategy implements AnonymizationStrategy {
         for (int i = 0; i < digits.length() - preserve; i++) {
             masked.append("X");
         }
-        masked.append(digits.substring(digits.length() - preserve));
+
+        if (preserve > 0) {
+            masked.append(digits.substring(digits.length() - preserve));
+        }
 
         return formatPhone(masked.toString());
     }
 
     private String generate(int length) {
+        ensureRandomInitialized();
         StringBuilder gen = new StringBuilder();
         for (int i = 0; i < length; i++) {
             gen.append(random.nextInt(10));
@@ -66,7 +74,6 @@ public class PhoneTransformStrategy implements AnonymizationStrategy {
         if (format == Format.E164) {
             return "+" + rawDigits;
         } else {
-            // (XXX) XXX-XX-XX
             if (rawDigits.length() >= 10) {
                 return "(" + rawDigits.substring(0, 3) + ") " +
                         rawDigits.substring(3, 6) + "-" +
@@ -75,6 +82,12 @@ public class PhoneTransformStrategy implements AnonymizationStrategy {
             } else {
                 return rawDigits;
             }
+        }
+    }
+
+    private void ensureRandomInitialized() {
+        if (random == null) {
+            random = new Random();
         }
     }
 }

@@ -1,5 +1,7 @@
 package com.kachalova.strategy;
 
-public interface AnonymizationStrategy {
+import java.io.Serializable;
+
+public interface AnonymizationStrategy extends Serializable {
     String anonymize(String value);
 }

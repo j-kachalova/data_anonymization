@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kachalova.dto.AnonymizedDataDto;
 import com.kachalova.dto.AnonymizedFieldDto;
 import com.kachalova.dto.OriginalDataDto;
+import com.kachalova.strategy.AnonymizationMapFunction;
+import com.kachalova.strategy.AnonymizationStrategy;
 import com.kachalova.strategy.impl.EmailTransformStrategy;
 import com.kachalova.strategy.impl.PassportTransformStrategy;
 import com.kachalova.strategy.impl.PhoneTransformStrategy;
@@ -52,7 +54,8 @@ public class Main {
 
                     @Override
                     public TypeInformation<ConsumerRecord<String, OriginalDataDto>> getProducedType() {
-                        return TypeInformation.of(new TypeHint<>() {});
+                        return TypeInformation.of(new TypeHint<>() {
+                        });
                     }
                 })
                 .build();
@@ -64,38 +67,11 @@ public class Main {
         );
 
         // Email stream
-        DataStream<AnonymizedFieldDto> emailStream = inputStream
-                .map(record -> new AnonymizedFieldDto(
-                        record.key(),
-                        "email",
-                        new EmailTransformStrategy(true, false,
-                                EmailTransformStrategy.InvalidEmailAction.GENERATE,
-                                EmailTransformStrategy.EmailType.UUID_V4,
-                                50).anonymize(record.value().getEmail())
-                )).slotSharingGroup("email")
-                .setParallelism(1);
+        DataStream<AnonymizedFieldDto> emailStream = stream("email", inputStream);
 // passport stream
-        DataStream<AnonymizedFieldDto> passportStream = inputStream
-                .map(record -> new AnonymizedFieldDto(
-                        record.key(),
-                        "passport",
-                        new PassportTransformStrategy().anonymize(record.value().getPassport())
-                )).slotSharingGroup("passport")
-                .setParallelism(1);
+        DataStream<AnonymizedFieldDto> passportStream = stream("passport", inputStream);
         // Phone stream
-        DataStream<AnonymizedFieldDto> phoneStream = inputStream
-                .map(record -> new AnonymizedFieldDto(
-                        record.key(),
-                        "phone",
-                        new PhoneTransformStrategy(
-                                PhoneTransformStrategy.Mode.GENERATE,
-                                PhoneTransformStrategy.Format.STRING,
-                                false,
-                                0,
-                                null
-                        ).anonymize(record.value().getPhone())
-                )).slotSharingGroup("phone")
-                .setParallelism(1);
+        DataStream<AnonymizedFieldDto> phoneStream = stream("phone", inputStream);
 
         DataStream<AnonymizedFieldDto> merged = emailStream.union(phoneStream).union(passportStream);
 
@@ -146,5 +122,41 @@ public class Main {
                 .setParallelism(1);
 
         env.execute("Kafka-based Distributed Anonymization Job");
+    }
+
+    public static DataStream<AnonymizedFieldDto> stream(String type, DataStream<ConsumerRecord<String, OriginalDataDto>> inputStream) {
+        AnonymizationStrategy strategy = addStrategy(type);
+        return inputStream
+                .map(new AnonymizationMapFunction(type, strategy))
+                .slotSharingGroup(type)
+                .setParallelism(1);
+    }
+
+    public static AnonymizationStrategy addStrategy(String type) {
+        AnonymizationStrategy strategy = switch (type) {
+            case "email" -> new EmailTransformStrategy(true, false,
+                    EmailTransformStrategy.InvalidEmailAction.GENERATE,
+                    EmailTransformStrategy.EmailType.UUID_V4,
+                    50);
+            case "phone" -> new PhoneTransformStrategy(
+                    PhoneTransformStrategy.Mode.GENERATE,
+                    PhoneTransformStrategy.Format.STRING,
+                    false,
+                    0,
+                    null
+            );
+            case "passport" -> new PassportTransformStrategy();
+            default -> null;
+        };
+        return strategy;
+    }
+    public static String getValue(OriginalDataDto record, String type){
+        String value = switch (type) {
+            case "email" -> record.getEmail();
+            case "phone" -> record.getPhone();
+            case "passport" -> record.getPassport();
+            default -> null;
+        };
+        return value;
     }
 }
