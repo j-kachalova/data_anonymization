@@ -40,7 +40,13 @@ public class AnonymizationController {
         kafkaProducer.sendOriginalDataDto(id, dto);
         return ResponseEntity.ok("Данные отправлены в Kafka для анонимизации");
     }
-
+    @PostMapping("/anonymize")
+    public ResponseEntity<?> anonymizeData(@RequestBody OriginalDataDto dto) {
+        OriginalData data = anonymizationService.saveOriginal(dto);
+        UUID id = data.getId();
+        kafkaProducer.sendOriginalDataDto(id, dto);
+        return ResponseEntity.ok("Данные отправлены в Kafka для анонимизации");
+    }
 
 
     // 3. Получить обезличенные данные по анонимному ID
