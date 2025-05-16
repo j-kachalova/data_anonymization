@@ -68,24 +68,22 @@ public class Main {
                 "Kafka Source"
         );
 
-        // Email stream
+
         DataStream<AnonymizedFieldDto> emailStream = stream("email", inputStream);
-// passport stream
+
         DataStream<AnonymizedFieldDto> passportStream = stream("passport", inputStream);
-        // Phone stream
+
         DataStream<AnonymizedFieldDto> phoneStream = stream("phone", inputStream);
 
-        // Email stream
         DataStream<AnonymizedFieldDto> addressStream = stream("address", inputStream);
-// passport stream
+
         DataStream<AnonymizedFieldDto> birthDateStream = stream("birthDate", inputStream);
-        // Phone stream
+
         DataStream<AnonymizedFieldDto> birthPlaceStream = stream("birthPlace", inputStream);
-        // Email stream
         DataStream<AnonymizedFieldDto> cardStream = stream("card", inputStream);
-// passport stream
+
         DataStream<AnonymizedFieldDto> innStream = stream("inn", inputStream);
-        // Phone stream
+
         DataStream<AnonymizedFieldDto> snilsStream = stream("snils", inputStream);
 
 
@@ -144,7 +142,11 @@ public class Main {
                 .setParallelism(1);
 
         responseStream
-                .map(dto -> objectMapper.writeValueAsString(dto))
+                .map(dto -> {
+                    String json = objectMapper.writeValueAsString(dto);
+                    System.out.println("Отправка в Kafka: " + json);
+                    return json;
+                })
                 .sinkTo(
                         KafkaSink.<String>builder()
                                 .setBootstrapServers("kafka:9092")
@@ -165,7 +167,7 @@ public class Main {
         AnonymizationStrategy strategy = StrategySelector.addStrategy(type);
         return inputStream
                 .map(new AnonymizationMapFunction(type, strategy))
-                .filter(Objects::nonNull) // 🛡️ фильтрация null-значений
+                .filter(Objects::nonNull) //  фильтрация null-значений
                 .slotSharingGroup(type)
                 .setParallelism(1);
     }

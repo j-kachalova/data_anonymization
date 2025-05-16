@@ -52,12 +52,11 @@ services:
     ports:
       - "8081:8081"
     command: jobmanager
-    volumes:
-      - ./flink-config/flink-conf.yaml:/opt/flink/conf/flink-conf.yaml
     environment:
       - |
         FLINK_PROPERTIES=
         jobmanager.rpc.address: jobmanager
+
 
   taskmanager1:
     image: flink:latest
@@ -65,131 +64,74 @@ services:
     depends_on:
       - jobmanager
     command: taskmanager
-    volumes:
-      - ./flink-config/flink-conf.yaml:/opt/flink/conf/flink-conf.yaml
     environment:
       - |
         FLINK_PROPERTIES=
         jobmanager.rpc.address: jobmanager
-
+        taskmanager.numberOfTaskSlots: 2
   taskmanager2:
     image: flink:latest
     container_name: taskmanager2
     depends_on:
       - jobmanager
     command: taskmanager
-    volumes:
-      - ./flink-config/flink-conf.yaml:/opt/flink/conf/flink-conf.yaml
     environment:
       - |
         FLINK_PROPERTIES=
         jobmanager.rpc.address: jobmanager
-
+        taskmanager.numberOfTaskSlots: 2
   taskmanager3:
     image: flink:latest
     container_name: taskmanager3
     depends_on:
       - jobmanager
     command: taskmanager
-    volumes:
-      - ./flink-config/flink-conf.yaml:/opt/flink/conf/flink-conf.yaml
     environment:
       - |
         FLINK_PROPERTIES=
         jobmanager.rpc.address: jobmanager
+        taskmanager.numberOfTaskSlots: 2
   taskmanager4:
     image: flink:latest
     container_name: taskmanager4
     depends_on:
       - jobmanager
     command: taskmanager
-    volumes:
-      - ./flink-config/flink-conf.yaml:/opt/flink/conf/flink-conf.yaml
     environment:
       - |
         FLINK_PROPERTIES=
         jobmanager.rpc.address: jobmanager
+        taskmanager.numberOfTaskSlots: 2
   taskmanager5:
     image: flink:latest
     container_name: taskmanager5
     depends_on:
       - jobmanager
     command: taskmanager
-    volumes:
-      - ./flink-config/flink-conf.yaml:/opt/flink/conf/flink-conf.yaml
     environment:
       - |
         FLINK_PROPERTIES=
         jobmanager.rpc.address: jobmanager
+        taskmanager.numberOfTaskSlots: 2
   taskmanager6:
     image: flink:latest
     container_name: taskmanager6
     depends_on:
       - jobmanager
     command: taskmanager
-    volumes:
-      - ./flink-config/flink-conf.yaml:/opt/flink/conf/flink-conf.yaml
     environment:
       - |
         FLINK_PROPERTIES=
         jobmanager.rpc.address: jobmanager
+        taskmanager.numberOfTaskSlots: 2
   taskmanager7:
     image: flink:latest
     container_name: taskmanager7
     depends_on:
       - jobmanager
     command: taskmanager
-    volumes:
-      - ./flink-config/flink-conf.yaml:/opt/flink/conf/flink-conf.yaml
     environment:
       - |
         FLINK_PROPERTIES=
         jobmanager.rpc.address: jobmanager
-  taskmanager8:
-    image: flink:latest
-    container_name: taskmanager8
-    depends_on:
-      - jobmanager
-    command: taskmanager
-    volumes:
-      - ./flink-config/flink-conf.yaml:/opt/flink/conf/flink-conf.yaml
-    environment:
-      - |
-        FLINK_PROPERTIES=
-        jobmanager.rpc.address: jobmanager
-  taskmanager9:
-    image: flink:latest
-    container_name: taskmanager9
-    depends_on:
-      - jobmanager
-    command: taskmanager
-    volumes:
-      - ./flink-config/flink-conf.yaml:/opt/flink/conf/flink-conf.yaml
-    environment:
-      - |
-        FLINK_PROPERTIES=
-        jobmanager.rpc.address: jobmanager
-  taskmanager10:
-    image: flink:latest
-    container_name: taskmanager10
-    depends_on:
-      - jobmanager
-    command: taskmanager
-    volumes:
-      - ./flink-config/flink-conf.yaml:/opt/flink/conf/flink-conf.yaml
-    environment:
-      - |
-        FLINK_PROPERTIES=
-        jobmanager.rpc.address: jobmanager
-  taskmanager11:
-    image: flink:latest
-    container_name: taskmanager11
-    depends_on:
-      - jobmanager
-    command: taskmanager
-    volumes:
-      - ./flink-config/flink-conf.yaml:/opt/flink/conf/flink-conf.yaml
-    environment:
-      - |
-        FLINK_PROPERTIES=
-        jobmanager.rpc.address: jobmanager
+        taskmanager.numberOfTaskSlots: 2
