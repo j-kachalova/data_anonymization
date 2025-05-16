@@ -10,7 +10,13 @@ import java.io.Serializable;
 @AllArgsConstructor
 @NoArgsConstructor
 public class OriginalDataDto implements Serializable {
+    private String birthDate;
+    private String birthPlace;
     private String passport;
+    private String address;
     private String phone;
     private String email;
+    private String inn;
+    private String snils;
+    private String card;
 }

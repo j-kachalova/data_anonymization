@@ -17,7 +17,14 @@ public class AnonymizedData {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
+    private String birthDate;
+    private String birthPlace;
     private String passport;
+    private String address;
     private String phone;
     private String email;
+    private String inn;
+    private String snils;
+    private String card;
+
 }

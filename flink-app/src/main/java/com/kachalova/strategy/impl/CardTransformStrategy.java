@@ -6,7 +6,7 @@ import java.io.Serializable;
 import java.util.Random;
 
 public class CardTransformStrategy implements AnonymizationStrategy, Serializable {
-    private static final Random random = new Random();
+    private transient Random random = new Random();
     @Override
     public String anonymize(String card) {
         if (card == null || card.length() < 4) return null;

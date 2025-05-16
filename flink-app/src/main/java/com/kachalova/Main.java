@@ -28,6 +28,7 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class Main {
     public static void main(String[] args) throws Exception {
@@ -74,7 +75,30 @@ public class Main {
         // Phone stream
         DataStream<AnonymizedFieldDto> phoneStream = stream("phone", inputStream);
 
-        DataStream<AnonymizedFieldDto> merged = emailStream.union(phoneStream).union(passportStream);
+        // Email stream
+        DataStream<AnonymizedFieldDto> addressStream = stream("address", inputStream);
+// passport stream
+        DataStream<AnonymizedFieldDto> birthDateStream = stream("birthDate", inputStream);
+        // Phone stream
+        DataStream<AnonymizedFieldDto> birthPlaceStream = stream("birthPlace", inputStream);
+        // Email stream
+        DataStream<AnonymizedFieldDto> cardStream = stream("card", inputStream);
+// passport stream
+        DataStream<AnonymizedFieldDto> innStream = stream("inn", inputStream);
+        // Phone stream
+        DataStream<AnonymizedFieldDto> snilsStream = stream("snils", inputStream);
+
+
+
+
+        DataStream<AnonymizedFieldDto> merged = emailStream.union(phoneStream)
+                .union(passportStream)
+                .union(addressStream)
+                .union(birthDateStream)
+                .union(birthPlaceStream)
+                .union(cardStream)
+                .union(innStream)
+                .union(snilsStream);
 
         DataStream<AnonymizedDataDto> responseStream = merged
                 .keyBy(AnonymizedFieldDto::getId)
@@ -90,12 +114,24 @@ public class Main {
                             case "email" -> dto.setEmail(value.getValue());
                             case "phone" -> dto.setPhone(value.getValue());
                             case "passport" -> dto.setPassport(value.getValue());
+                            case "birthDate" -> dto.setBirthDate(value.getValue());
+                            case "birthPlace" -> dto.setBirthPlace(value.getValue());
+                            case "address" -> dto.setAddress(value.getValue());
+                            case "inn" -> dto.setInn(value.getValue());
+                            case "snils" -> dto.setSnils(value.getValue());
+                            case "card" -> dto.setCard(value.getValue());
                         }
 
                         // Проверка, все ли поля установлены
                         if (dto.getEmail() != null &&
                                 dto.getPhone() != null &&
-                                dto.getPassport() != null) {
+                                dto.getPassport() != null &&
+                                dto.getBirthDate() != null &&
+                                dto.getBirthPlace() != null &&
+                                dto.getAddress() != null &&
+                                dto.getInn() != null &&
+                                dto.getSnils() != null &&
+                                dto.getCard() != null) {
 
                             out.collect(dto);
                             buffer.remove(value.getId());
@@ -129,6 +165,7 @@ public class Main {
         AnonymizationStrategy strategy = StrategySelector.addStrategy(type);
         return inputStream
                 .map(new AnonymizationMapFunction(type, strategy))
+                .filter(Objects::nonNull) // 🛡️ фильтрация null-значений
                 .slotSharingGroup(type)
                 .setParallelism(1);
     }

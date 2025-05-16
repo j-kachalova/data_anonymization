@@ -34,6 +34,12 @@ public class KafkaConsumer {
                     .email(dto.getEmail())
                     .phone(dto.getPhone())
                     .passport(dto.getPassport())
+                    .card(dto.getCard())
+                    .inn(dto.getInn())
+                    .snils(dto.getSnils())
+                    .birthPlace(dto.getBirthPlace())
+                    .birthDate(dto.getBirthDate())
+                    .address(dto.getAddress())
                     .build();
 
             anonymized = anonymizedDataRepository.save(anonymized);

@@ -1,12 +1,11 @@
 package com.kachalova.strategy;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.kachalova.Main;
 import com.kachalova.dto.AnonymizedFieldDto;
 import com.kachalova.dto.OriginalDataDto;
 import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
+
+import java.util.Objects;
 
 public class AnonymizationMapFunction implements MapFunction<ConsumerRecord<String, OriginalDataDto>, AnonymizedFieldDto> {
     private final String type;
@@ -19,8 +18,15 @@ public class AnonymizationMapFunction implements MapFunction<ConsumerRecord<Stri
 
     @Override
     public AnonymizedFieldDto map(ConsumerRecord<String, OriginalDataDto> record) {
-        String value = StrategySelector.getValue(record.value(), type); // Вызов статического метода
+        if (record == null || record.value() == null || record.key() == null) {
+            return null;
+        }
+
+        String value = StrategySelector.getValue(record.value(), type);
+        if (value == null) {
+            return null;
+        }
+
         return new AnonymizedFieldDto(record.key(), type, strategy.anonymize(value));
     }
 }
-
