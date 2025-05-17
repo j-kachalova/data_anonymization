@@ -4,7 +4,8 @@ import {
     Table, TableBody, TableCell, TableContainer,
     TableHead, TableRow, Paper, Typography, Box, Button
 } from '@mui/material';
-import {Link} from "react-router-dom";
+import { Link } from "react-router-dom";
+import * as XLSX from 'xlsx';
 
 const AnonymizedPage = () => {
     const [data, setData] = useState([]);
@@ -16,13 +17,27 @@ const AnonymizedPage = () => {
             .catch((err) => setError('Ошибка при загрузке данных: ' + err.message));
     }, []);
 
+    const handleExport = () => {
+        const worksheet = XLSX.utils.json_to_sheet(data);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, 'Anonymized Data');
+        XLSX.writeFile(workbook, 'anonymized_data.xlsx');
+    };
+
     return (
-        <Box sx={{p: 4}}>
+        <Box sx={{ p: 4 }}>
             <Typography variant="h5" gutterBottom>Обезличенные данные</Typography>
             {error && <Typography color="error">{error}</Typography>}
-            <Button variant="outlined" component={Link} to="/" sx={{ mb: 2 }}>
-                Назад
-            </Button>
+
+            <Box sx={{ mb: 2, display: 'flex', gap: 2 }}>
+                <Button variant="outlined" component={Link} to="/">
+                    Назад
+                </Button>
+                <Button variant="contained" color="primary" onClick={handleExport}>
+                    Выгрузить в Excel
+                </Button>
+            </Box>
+
             <TableContainer component={Paper}>
                 <Table size="small">
                     <TableHead>
@@ -60,4 +75,5 @@ const AnonymizedPage = () => {
         </Box>
     );
 }
+
 export default AnonymizedPage;

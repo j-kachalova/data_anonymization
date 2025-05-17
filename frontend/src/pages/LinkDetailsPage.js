@@ -44,7 +44,7 @@ const LinkDetailsPage = () => {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {['birthDate', 'birthPlace', 'passport', 'address', 'phone', 'email', 'inn', 'snils', 'card'].map(field => (
+                        {['Дата рождения', 'Место рождения', 'Паспорт', 'Адрес', 'Телефон', 'Почта', 'ИНН', 'СНИЛС', 'Карта'].map(field => (
                             <TableRow key={field}>
                                 <TableCell sx={{ fontWeight: 'bold' }}>{field}</TableCell>
                                 <TableCell>{link.originalData?.[field] || '—'}</TableCell>
