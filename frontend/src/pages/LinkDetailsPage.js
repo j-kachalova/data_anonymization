@@ -1,4 +1,3 @@
-// LinkDetailsPage.js
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
@@ -7,6 +6,18 @@ import {
     TableHead, TableRow, Paper, Typography, Box,
     Button
 } from '@mui/material';
+
+const fieldLabels = {
+    birthDate: 'Дата рождения',
+    birthPlace: 'Место рождения',
+    passport: 'Паспорт',
+    address: 'Адрес',
+    phone: 'Телефон',
+    email: 'Email',
+    inn: 'ИНН',
+    snils: 'СНИЛС',
+    card: 'Номер карты',
+};
 
 const LinkDetailsPage = () => {
     const { id } = useParams();
@@ -39,14 +50,14 @@ const LinkDetailsPage = () => {
                     <TableHead>
                         <TableRow>
                             <TableCell>Поле</TableCell>
-                            <TableCell>Original</TableCell>
-                            <TableCell>Anonymized</TableCell>
+                            <TableCell>Исходные данные</TableCell>
+                            <TableCell>Обезличенные данные</TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {['Дата рождения', 'Место рождения', 'Паспорт', 'Адрес', 'Телефон', 'Почта', 'ИНН', 'СНИЛС', 'Карта'].map(field => (
+                        {Object.keys(fieldLabels).map(field => (
                             <TableRow key={field}>
-                                <TableCell sx={{ fontWeight: 'bold' }}>{field}</TableCell>
+                                <TableCell sx={{ fontWeight: 'bold' }}>{fieldLabels[field]}</TableCell>
                                 <TableCell>{link.originalData?.[field] || '—'}</TableCell>
                                 <TableCell>{link.anonymizedData?.[field] || '—'}</TableCell>
                             </TableRow>
