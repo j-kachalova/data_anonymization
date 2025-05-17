@@ -6,3 +6,10 @@ GRANT ALL PRIVILEGES ON DATABASE data_anonymization TO myuser;
 зайти в бд в докере
 psql -U myuser -d data_anonymization
 \dt
+
+frontend
+npm install
+
+загрузка job
+http://localhost:8081/#/submit 
+
