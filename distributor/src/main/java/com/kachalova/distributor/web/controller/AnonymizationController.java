@@ -73,4 +73,9 @@ public class AnonymizationController {
     public ResponseEntity<List<AnonymizedData>> getAllAnonymizedData() {
         return ResponseEntity.ok(anonymizationService.getAllAnonymizedData());
     }
+    @GetMapping("/link/{id}")
+    public ResponseEntity<LinkTable> getLinkById(@PathVariable UUID id) {
+        return ResponseEntity.ok(anonymizationService.getLinkById(id));
+    }
+
 }

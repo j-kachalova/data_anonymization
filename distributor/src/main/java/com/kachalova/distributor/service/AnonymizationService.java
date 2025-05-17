@@ -87,4 +87,8 @@ public class AnonymizationService {
     public List<AnonymizedData> getAllAnonymizedData() {
         return anonymizedRepo.findAll();
     }
+    public LinkTable getLinkById(UUID id) {
+        return linkRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("LinkTable с id " + id + " не найден"));
+    }
 }
