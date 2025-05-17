@@ -53,10 +53,10 @@ services:
       - "8081:8081"
     command: jobmanager
     environment:
-      - |
-        FLINK_PROPERTIES=
+      FLINK_PROPERTIES: |
         jobmanager.rpc.address: jobmanager
-
+  
+  
 
   taskmanager1:
     image: flink:latest
@@ -65,10 +65,10 @@ services:
       - jobmanager
     command: taskmanager
     environment:
-      - |
-        FLINK_PROPERTIES=
+      FLINK_PROPERTIES: |
         jobmanager.rpc.address: jobmanager
         taskmanager.numberOfTaskSlots: 2
+
   taskmanager2:
     image: flink:latest
     container_name: taskmanager2
@@ -76,10 +76,10 @@ services:
       - jobmanager
     command: taskmanager
     environment:
-      - |
-        FLINK_PROPERTIES=
+      FLINK_PROPERTIES: |
         jobmanager.rpc.address: jobmanager
         taskmanager.numberOfTaskSlots: 2
+
   taskmanager3:
     image: flink:latest
     container_name: taskmanager3
@@ -87,10 +87,10 @@ services:
       - jobmanager
     command: taskmanager
     environment:
-      - |
-        FLINK_PROPERTIES=
+      FLINK_PROPERTIES: |
         jobmanager.rpc.address: jobmanager
         taskmanager.numberOfTaskSlots: 2
+
   taskmanager4:
     image: flink:latest
     container_name: taskmanager4
@@ -98,10 +98,10 @@ services:
       - jobmanager
     command: taskmanager
     environment:
-      - |
-        FLINK_PROPERTIES=
+      FLINK_PROPERTIES: |
         jobmanager.rpc.address: jobmanager
         taskmanager.numberOfTaskSlots: 2
+
   taskmanager5:
     image: flink:latest
     container_name: taskmanager5
@@ -109,10 +109,10 @@ services:
       - jobmanager
     command: taskmanager
     environment:
-      - |
-        FLINK_PROPERTIES=
+      FLINK_PROPERTIES: |
         jobmanager.rpc.address: jobmanager
         taskmanager.numberOfTaskSlots: 2
+
   taskmanager6:
     image: flink:latest
     container_name: taskmanager6
@@ -120,10 +120,10 @@ services:
       - jobmanager
     command: taskmanager
     environment:
-      - |
-        FLINK_PROPERTIES=
+      FLINK_PROPERTIES: |
         jobmanager.rpc.address: jobmanager
         taskmanager.numberOfTaskSlots: 2
+  
 
   frontend:
     build:
